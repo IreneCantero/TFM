@@ -333,6 +333,7 @@ if __name__ == "__main__":
             st.subheader("Get Predictions")
             option_input = st.selectbox('Select an option', ('Input File', 'Single SMILE', 'Random SMILES'))
 
+            df = None
             if option_input == 'Input File':
                 
                 st.write("Upload a file containing at least a column with the canonical smiles with the name \'canonical_smiles\'.")
@@ -346,8 +347,12 @@ if __name__ == "__main__":
 
             elif option_input == 'Single SMILE':
                 single_smile = st.text_input('Write the SMILE to get prediction:', '') #'N[C@H](C)C(=O)O'
-                if single_smile == '':
+                is_valid = Chem.MolFromSmiles(single_smile)
+                while single_smile == '' or is_valid == None:
+                    if is_valid == None:
+                        st.error("Not a valid SMILE, try with another one!")
                     st.stop()
+
                 df = pd.DataFrame({'canonical_smiles': [single_smile]})
                 st.dataframe(df)
 
@@ -371,6 +376,9 @@ if __name__ == "__main__":
                 csv_rnd_cs = df.to_csv(index=False).encode('utf-8')
                 name_rnd_cs = 'random_smiles.csv'
                 st.download_button("Download CSV", csv_rnd_cs, name_rnd_cs, key='download-csv_rnd_cs') #It saves it in Downloads
+
+            if df is None:
+                st.stop()
 
             #Obtain the fingerprints from the canonical smiles
             smiles = df['canonical_smiles'].to_list()
@@ -423,7 +431,7 @@ if __name__ == "__main__":
                 df_score['Number of Cancers'] = df_score['Number of Cancers'].astype(str)
                 df_score['bioactivity_predictions'] = df_score.groupby(['canonical_smiles'], as_index=False)['bioactivity_prediction'].transform(lambda x: ','.join(x))
                 df_score['Number of Cancers'] = df_score.groupby(['canonical_smiles'], as_index=False)['Number of Cancers'].transform(lambda x: ','.join(x))
-                df_score = df_score.drop(columns=['target_pref_name', 'bioactivity_prediction']).drop_duplicates().sort_values(by=['merged_score'], ascending=False).reset_index(drop=True)
+                df_score = df_score.drop(columns=['target_pref_name', 'bioactivity_prediction', 'Cancer Types']).drop_duplicates().sort_values(by=['merged_score'], ascending=False).reset_index(drop=True)
                 st.write("These are the top recommendations:")
                 st.dataframe(df_score.head(10))
 
@@ -458,7 +466,7 @@ if __name__ == "__main__":
                 df_score['Number of Cancers'] = df_score['Number of Cancers'].astype(str)
                 df_score['bioactivity_predictions'] = df_score.groupby(['canonical_smiles'], as_index=False)['bioactivity_prediction'].transform(lambda x: ','.join(x))
                 df_score['Number of Cancers'] = df_score.groupby(['canonical_smiles'], as_index=False)['Number of Cancers'].transform(lambda x: ','.join(x))
-                df_score = df_score.drop(columns=['target_pref_name', 'bioactivity_prediction']).drop_duplicates().sort_values(by=['merged_score'], ascending=False).reset_index(drop=True)
+                df_score = df_score.drop(columns=['target_pref_name', 'bioactivity_prediction', 'Cancer Types']).drop_duplicates().sort_values(by=['merged_score'], ascending=False).reset_index(drop=True)
 
                 st.write("These are the top recommendations:")
                 st.dataframe(df_score.head(10))
