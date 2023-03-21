@@ -8,6 +8,7 @@ from rdkit import Chem
 from rdkit.Chem import DataStructs
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 def create_model_from_scratch():
     st.header('Build Model')
@@ -24,16 +25,23 @@ def create_model_from_scratch():
         #Build Regression Model
         np.random.seed(100)
 
-        st.subheader("Train Model and Show R2 Result:")
+        st.subheader("Train Model and Show Metric Results:")
         model = RandomForestRegressor(n_estimators=200)
         model.fit(X_train, Y_train)
-        r2 = model.score(X_test, Y_test)
-        st.write("The R2 result is: " + str(r2))
+        #r2 = model.score(X_test, Y_test)
+        #st.write("The R2 result is: " + str(r2))
         Y_pred = model.predict(X_test)
+        metrics = {'R2': [model.score(X_test, Y_test)],
+                    'MAE': [mean_absolute_error(Y_test, Y_pred)],
+                    'MSE': [mean_squared_error(Y_test, Y_pred)]}
+        st.dataframe(pd.DataFrame(metrics))
 
         # Download model button
+        model_final = RandomForestRegressor(n_estimators=200)
+        model_final.fit(X, Y)
+
         st.subheader('Click button to download the Random Forest Regressor model:')
-        st.download_button("Download Model", data=pickle.dumps(model), file_name='model_random_forest.pkl', key='download-model') #It saves it in Downloads
+        st.download_button("Download Model", data=pickle.dumps(model_final), file_name='model_random_forest.pkl', key='download-model') #It saves it in Downloads
 
         st.subheader('Scatter Plot of Real vs Predicted pIC50 Values')
         fig, ax = plt.subplots()
