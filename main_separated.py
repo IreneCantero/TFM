@@ -427,6 +427,11 @@ if __name__ == "__main__":
                 st.write("These are the top recommendations:")
                 st.dataframe(df_score.head(10))
 
+                # Download file button
+                csv_4 = df_score.to_csv(index=False).encode('utf-8')
+                name_4 = 'predictions_file.csv'
+                st.download_button("Download CSV", csv_4, name_4, key='download-csv_4') #It saves it in Downloads
+
             elif model_type == 'Separated Linear Regressions':
                 #Get predictions
                 df_preds = pd.DataFrame()
@@ -458,10 +463,10 @@ if __name__ == "__main__":
                 st.write("These are the top recommendations:")
                 st.dataframe(df_score.head(10))
 
-            # Download file button
-            csv_4 = df_score.to_csv(index=False).encode('utf-8')
-            name_4 = 'predictions_input_file.csv'
-            st.download_button("Download CSV", csv_4, name_4, key='download-csv_4') #It saves it in Downloads
+                # Download file button
+                csv_5 = df_score.to_csv(index=False).encode('utf-8')
+                name_5 = 'prediction_input_file.csv'
+                st.download_button("Download CSV", csv_5, name_5, key='download-csv_4') #It saves it in Downloads
 
                 
 
