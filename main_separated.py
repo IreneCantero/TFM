@@ -60,9 +60,9 @@ if __name__ == "__main__":
     sidebar = st.sidebar
     with sidebar:
         st.header("ML for Drug Discovery")
-        part_selectbox = st.selectbox("Select Project Part:", ("Part 1", "Part 2"))
+        part_selectbox = st.selectbox("Select Project Part:", ("Drug bioactivity prediction model", "Multi-targeting for pan-cancer treatment"))
 
-    if part_selectbox == 'Part 1':
+    if part_selectbox == 'Drug bioactivity prediction model':
 
         input_selectbox = st.sidebar.selectbox(
             "Step Selection", ["Obtain and Preprocess Data", "Create Descriptor Dataset", "Create Model"]
@@ -86,7 +86,7 @@ if __name__ == "__main__":
             elif option == 'Yes':
                 upload_pretrained_model()
     
-    elif part_selectbox == 'Part 2':
+    elif part_selectbox == 'Multi-targeting for pan-cancer treatment':
         #input_selectbox_2 = st.sidebar.selectbox(
         #    "Step Selection", ["Intro", "Select Proteins"]
         #)
@@ -103,14 +103,15 @@ if __name__ == "__main__":
         from sklearn.feature_selection import VarianceThreshold
         from sklearn.ensemble import RandomForestRegressor
         from sklearn.model_selection import train_test_split
-        from sklearn.metrics import mean_absolute_error, mean_squared_error
+        from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score 
         from sklearn.preprocessing import LabelEncoder
         import seaborn as sns
         import matplotlib.pyplot as plt
         from get_data_preprocessing import get_pIC50
 
-        #Hacer que se puedan escoger los cancers!!
+        st.title(part_selectbox)
 
+        #Hacer que se puedan escoger los cancers!!??
         #Poner explanation en el streamlit sobre los acronimos!!!!!
         cancers_dict = {'BRC': 'breast cancer', 'OC': 'ovarian cancer', 'LC': 'lung cancer', 'LK': 'leukemia'}
 
@@ -121,7 +122,10 @@ if __name__ == "__main__":
             df_aux['Cancer Type'] = cancer_type
             df_cancer_target = pd.concat([df_cancer_target, df_aux], ignore_index=True, axis=0)
             
-        st.dataframe(df_cancer_target) #TAKE OUT!!!!!!!
+        st.dataframe(df_cancer_target)
+        
+        #for cancer in cancers_dict.keys():
+        #    st.write(cancer, len(df_cancer_target[df_cancer_target['Cancer Type']==cancer]))
         
         cols = ['Cancer Type', 'pref_name', 'target_chembl_id']
         df_cancer_info = df_cancer_target[cols]
@@ -212,8 +216,8 @@ if __name__ == "__main__":
                 #st.write("The R2 result is: " + str(r2))
                 Y_pred = model.predict(X_test)        
                 metrics = {'R2': [round(model.score(X_test, Y_test),3)],
-                            'MAE': [round(mean_absolute_error(Y_test, Y_pred),3)],
-                            'MSE': [round(mean_squared_error(Y_test, Y_pred),3)]}
+                           'MAE': [round(mean_absolute_error(Y_test, Y_pred),3)],
+                           'MSE': [round(mean_squared_error(Y_test, Y_pred),3)]}
                 st.dataframe(pd.DataFrame(metrics))
 
                 # Plot result
@@ -226,6 +230,9 @@ if __name__ == "__main__":
                 ax.set_ylabel('Predicted ' + val_to_predict, fontsize=10, fontweight='bold')
                 ax.figure.set_size_inches(5, 4)
                 st.pyplot(fig)
+
+                model = RandomForestRegressor(n_estimators=200)
+                model.fit(x,y)
 
             elif model_type == 'Separated Linear Regressions':
 
@@ -260,6 +267,9 @@ if __name__ == "__main__":
                             'MAE': [round(mean_absolute_error(Y_test, Y_pred),3)],
                             'MSE': [round(mean_squared_error(Y_test, Y_pred),3)]}
                     metrics_list.append(metrics)
+
+                    model = RandomForestRegressor(n_estimators=200)
+                    model.fit(x, y)
 
                     lr_models[protein] = model
                     lr_preds[protein] = {'Y_test': Y_test, 'Y_pred': Y_pred}
@@ -328,6 +338,9 @@ if __name__ == "__main__":
                 plt.xlabel("Predicted Class")
                 plt.ylabel("True Class")                    
                 st.pyplot(fig)
+
+                classifier = RandomForestClassifier(n_estimators = len(num_classes), criterion = 'entropy', random_state = 42)
+                model = classifier.fit(x,y)
 
 
             st.subheader("Get Predictions")
@@ -475,11 +488,6 @@ if __name__ == "__main__":
                 csv_5 = df_score.to_csv(index=False).encode('utf-8')
                 name_5 = 'prediction_input_file.csv'
                 st.download_button("Download CSV", csv_5, name_5, key='download-csv_4') #It saves it in Downloads
-
-                
-
-
-
 
 
 

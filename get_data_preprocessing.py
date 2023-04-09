@@ -79,7 +79,7 @@ def get_pIC50(ic50: list):
 
 def obtain_and_preprocess_data():
     #Part 1
-    st.title('ML for Drug Discovery')
+    st.title('Drug bioactivity prediction')
     st.header('Get Target Name')
     df, target = ask_get_target()
     st.dataframe(data=df)

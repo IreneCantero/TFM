@@ -8,7 +8,7 @@ from rdkit import Chem
 from rdkit.Chem import DataStructs
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 def create_model_from_scratch():
     st.header('Build Model')
